@@ -187,3 +187,9 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+import os
+
+DJANGO_SUPERUSER_USERNAME = os.environ.get("ManojVeturi")
+DJANGO_SUPERUSER_EMAIL = os.environ.get("manojveturi2007@gmail.com")
+DJANGO_SUPERUSER_PASSWORD = os.environ.get("Manoj1234")
