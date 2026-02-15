@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "sae-audition25.vercel.app",
     'sae-audition-2k26-backend.onrender.com',
+    ".vercel.app",
 ]
 
 
@@ -81,7 +82,6 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "https://sae-audition-2k26.vercel.app",
-    "https://*.vercel.app",
 ]
 
 
