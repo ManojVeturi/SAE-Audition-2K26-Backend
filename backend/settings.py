@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-%-dgls0^nvzx44^!+1em*rzhhlsetey0m$*wsa=z7xgk5h7w9y
 # SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "localhost",
@@ -62,10 +62,10 @@ MIDDLEWARE = [
 ]
 # CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
-     "https://sae-audition-backend.up.railway.app", "http://localhost:5173", "https://sae-audition25.vercel.app"
+     "https://sae-audition-backend.up.railway.app", "http://localhost:5173", "https://sae-audition-2k26.vercel.app"
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://sae-audition-backend.up.railway.app", "http://localhost:5173", "https://sae-audition25.vercel.app"
+    "https://sae-audition-backend.up.railway.app", "http://localhost:5173", "https://sae-audition-2k26.vercel.app"
 ]
 ROOT_URLCONF = 'backend.urls'
 
@@ -147,7 +147,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # settings.py
 AUTHENTICATION_BACKENDS = [
@@ -159,7 +159,7 @@ EMAIL_HOST = 'smtp.gmail.com'  # Use your email provider's SMTP server
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'manojveturi2007@gmail.com'  # saeindia@nitdgp.ac.in
-EMAIL_HOST_PASSWORD = 'mdyn zzua zfmq fmxq'   
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 
 REST_FRAMEWORK = {
@@ -189,6 +189,7 @@ SIMPLE_JWT = {
 
 import os
 
-DJANGO_SUPERUSER_USERNAME = os.environ.get("ManojVeturi")
-DJANGO_SUPERUSER_EMAIL = os.environ.get("manojveturi2007@gmail.com")
-DJANGO_SUPERUSER_PASSWORD = os.environ.get("Manoj1234")
+DJANGO_SUPERUSER_USERNAME = os.environ.get("DJANGO_SUPERUSER_USERNAME")
+DJANGO_SUPERUSER_EMAIL = os.environ.get("DJANGO_SUPERUSER_EMAIL")
+DJANGO_SUPERUSER_PASSWORD = os.environ.get("DJANGO_SUPERUSER_PASSWORD")
+
