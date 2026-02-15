@@ -58,8 +58,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
+
 # CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -69,9 +69,12 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://.*\.vercel\.app$",
 ]
+
 CSRF_TRUSTED_ORIGINS = [
-    "https://sae-audition-backend.up.railway.app", "http://localhost:5173", "https://sae-audition-2k26.vercel.app"
+    "http://localhost:5173",
+    "https://sae-audition-2k26.vercel.app",
 ]
+
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
