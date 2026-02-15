@@ -95,6 +95,7 @@ def send_email_to_user(request):
 
 
 class SendOtpView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = SendOtpSerializer(data=request.data)
         if serializer.is_valid():
@@ -123,6 +124,7 @@ class SendOtpView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
 class VerifyOtpView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = VerifyOtpSerializer(data=request.data)
         if serializer.is_valid():
@@ -226,6 +228,7 @@ class AdminDashboardView(APIView):
         return Response({'message': 'Welcome to the Admin Dashboard'}, status=status.HTTP_200_OK)
 
 class DeleteObjectView(APIView):
+    permission_classes = [IsAuthenticated]
     def delete(self, request, pk):
         try:
             obj = AuditionData.objects.get(pk=pk)
@@ -235,6 +238,7 @@ class DeleteObjectView(APIView):
             raise NotFound(detail="Object not found")
 
 class SearchView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         Namequery = request.GET.get('Namequery', '')
         Rollquery = request.GET.get('Rollquery', '')
