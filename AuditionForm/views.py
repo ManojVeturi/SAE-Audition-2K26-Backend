@@ -108,18 +108,20 @@ class SendOtpView(APIView):
             otp = random.randint(100000, 999999)
 
             # Send OTP via email
-            send_mail(
-                'Your OTP for Admin Login',
-                f'Your OTP is {otp}. Please use this OTP to log in to your admin account.',
-                settings.EMAIL_HOST_USER,  # Use key from settings
-                [email],
-                fail_silently=False,
-            )
-
-            # Save the new OTP to the database
-            OTP.objects.create(otp=str(otp), email=email)
-
-            return Response({"message": "OTP sent successfully!"}, status=status.HTTP_200_OK)
+            try:
+                send_mail(
+                    'Your OTP for Admin Login',
+                    f'Your OTP is {otp}. Please use this OTP to log in to your admin account.',
+                    settings.EMAIL_HOST_USER,  # Use key from settings
+                    [email],
+                    fail_silently=False,
+                )
+                # Save the new OTP to the database ONLY if email sent successfully
+                OTP.objects.create(otp=str(otp), email=email)
+                return Response({"message": "OTP sent successfully!"}, status=status.HTTP_200_OK)
+            except Exception as e:
+                # Return the actual error message for debugging
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
