@@ -27,6 +27,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
 from django.http import Http404
+import resend
+import os
 
 # def get_tokens_for_user(user):
 #     refresh = RefreshToken.for_user(user)
@@ -109,13 +111,14 @@ class SendOtpView(APIView):
 
             # Send OTP via email
             try:
-                send_mail(
-                    'Your OTP for Admin Login',
-                    f'Your OTP is {otp}. Please use this OTP to log in to your admin account.',
-                    settings.EMAIL_HOST_USER,  # Use key from settings
-                    [email],
-                    fail_silently=False,
-                )
+                resend.api_key = os.environ.get("RESEND_API_KEY")
+
+                resend.Emails.send({
+                    "from": "onboarding@resend.dev",
+                    "to": [email],
+                    "subject": "Your OTP for Admin Login",
+                    "html": f"<h2>Your OTP is {otp}</h2>"
+                })
                 # Save the new OTP to the database ONLY if email sent successfully
                 OTP.objects.create(otp=str(otp), email=email)
                 return Response({"message": "OTP sent successfully!"}, status=status.HTTP_200_OK)
