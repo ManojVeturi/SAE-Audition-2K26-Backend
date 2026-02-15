@@ -21,7 +21,7 @@ from rest_framework.response import Response
 from rest_framework import status
 import random
 from django.core.mail import send_mail
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, permission_classes
@@ -95,7 +95,7 @@ def send_email_to_user(request):
 
 
 class SendOtpView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = SendOtpSerializer(data=request.data)
         if serializer.is_valid():
@@ -126,7 +126,7 @@ class SendOtpView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
 class VerifyOtpView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = VerifyOtpSerializer(data=request.data)
         if serializer.is_valid():
