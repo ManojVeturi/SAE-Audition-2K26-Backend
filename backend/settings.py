@@ -29,7 +29,6 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "sae-audition-backend.up.railway.app",
     "sae-audition25.vercel.app",
     'sae-audition-2k26-backend.onrender.com',
 ]
