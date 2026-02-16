@@ -28,6 +28,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
 from django.http import Http404
 
+
 # def get_tokens_for_user(user):
 #     refresh = RefreshToken.for_user(user)
 #     return {
