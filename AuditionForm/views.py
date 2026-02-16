@@ -27,8 +27,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
 from django.http import Http404
-import resend
-import os
 
 # def get_tokens_for_user(user):
 #     refresh = RefreshToken.for_user(user)
@@ -96,45 +94,36 @@ def send_email_to_user(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
 
-
 class SendOtpView(APIView):
     permission_classes = [AllowAny]
-
     def post(self, request):
         serializer = SendOtpSerializer(data=request.data)
-
         if serializer.is_valid():
             email = serializer.validated_data['email']
 
+            # Delete any existing OTP for the given email
             OTP.objects.filter(email=email).delete()
+
+            # Generate a new OTP
             otp = random.randint(100000, 999999)
 
+            # Send OTP via email
             try:
-                print("STEP 1: starting resend")
-
-                api_key = os.environ.get("RESEND_API_KEY")
-                print("STEP 2: API KEY EXISTS:", api_key is not None)
-
-                resend.api_key = api_key
-
-                response = resend.Emails.send({
-                    "from": "onboarding@resend.dev",
-                    "to": [email],
-                    "subject": "Your OTP for Admin Login",
-                    "html": f"<h2>Your OTP is {otp}</h2>"
-                })
-
-                print("STEP 3: resend response:", response)
-
+                send_mail(
+                    'Your OTP for Admin Login',
+                    f'Your OTP is {otp}',
+                    settings.EMAIL_HOST_USER,
+                    [email],
+                    fail_silently=False,
+                )
+                # Save the new OTP to the database ONLY if email sent successfully
                 OTP.objects.create(otp=str(otp), email=email)
-
-                return Response({"message": "OTP sent successfully!"}, status=200)
-
+                return Response({"message": "OTP sent successfully!"}, status=status.HTTP_200_OK)
             except Exception as e:
-                print("🔥🔥🔥 RESEND FULL ERROR:", str(e))
-                return Response({"error": str(e)}, status=500)
-
-        return Response(serializer.errors, status=400)
+                # Return the actual error message for debugging
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
 class VerifyOtpView(APIView):
     permission_classes = [AllowAny]
