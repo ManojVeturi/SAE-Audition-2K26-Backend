@@ -1,34 +1,27 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.shortcuts import render,HttpResponse
 from rest_framework import status
-from .models import AuditionData
-from .serializers import AuditionDataSerializer
-from .serializers import LoginSerializer
-from .serializers import UserSerializer
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.shortcuts import render, HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.core.mail import send_mail
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+from .models import AuditionData, OTP
+from .serializers import (
+    AuditionDataSerializer,
+    LoginSerializer,
+    UserSerializer,
+    SendOtpSerializer,
+    VerifyOtpSerializer
+)
 import json
-from .models import OTP
-from twilio.rest import Client
-from django.conf import settings
-from .serializers import SendOtpSerializer, VerifyOtpSerializer
-from django.core.mail import send_mail
-from rest_framework.response import Response
-from rest_framework import status
 import random
-from django.core.mail import send_mail
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import NotFound
-from django.http import Http404
 import requests
-from django.conf import settings
+
 
 
 # def get_tokens_for_user(user):
