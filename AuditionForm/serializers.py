@@ -47,12 +47,17 @@ class VerifyOtpSerializer(serializers.Serializer):
         email = data.get('email')
         otp = data.get('otp')
 
+        # Check if OTP exists for this email
         try:
             otp_instance = OTP.objects.get(email=email, otp=otp)
+            def is_expired(self):
+                """Check if OTP is expired (valid for 5 minutes)"""
+                return timezone.now() > self.created_at + timedelta(minutes=5)
 
+            # Check if OTP is expired
             if otp_instance.is_expired():
                 raise serializers.ValidationError("OTP has expired.")
-
+        
         except OTP.DoesNotExist:
             raise serializers.ValidationError("Invalid OTP.")
 

@@ -1,27 +1,32 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.shortcuts import render,HttpResponse
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.shortcuts import render, HttpResponse
+from .models import AuditionData
+from .serializers import AuditionDataSerializer
+from .serializers import LoginSerializer
+from .serializers import UserSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.core.mail import send_mail
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
-from .models import AuditionData, OTP
-from .serializers import (
-    AuditionDataSerializer,
-    LoginSerializer,
-    UserSerializer,
-    SendOtpSerializer,
-    VerifyOtpSerializer
-)
 import json
+from .models import OTP
+from twilio.rest import Client
+from django.conf import settings
+from .serializers import SendOtpSerializer, VerifyOtpSerializer
+from django.core.mail import send_mail
+from rest_framework.response import Response
+from rest_framework import status
 import random
-import requests
-
+from django.core.mail import send_mail
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import NotFound
+from django.http import Http404
 
 
 # def get_tokens_for_user(user):
@@ -79,14 +84,10 @@ def send_email_to_user(request):
             # Send success email to the user
             subject = "Welcome to SAE Audition - Let's Crush This Challenge! "
             message = "Congrats on moving forward to the SAE Audition! This is the college's most demanding audition, where only the best rise to the top. It's your chance to showcase your skills, creativity, and passion. \n \nPrepare to face exciting challenges that will push your limits and ignite your innovative spirit. Every task is an opportunity to shine and grow—whether it's teamwork, leadership, or technical expertise. \n \nWe know you're ready. Stay focused, bring your A-game, and make the most of every moment. \n \nLet's make this audition unforgettable. Best of luck!\n \n \n \nWarm regards, \nSAEINDIA Collegiate Club\nNIT Durgapur"
-            from_email = settings.DEFAULT_FROM_EMAIL  # Use key from settings
+            from_email = settings.EMAIL_HOST_USER  # Use key from settings
             recipient_list = [user_email]
 
-            send_brevo_email(
-                user_email,
-                subject,
-                message.replace("\n", "<br>")
-            )
+            send_mail(subject, message, from_email, recipient_list)
             
             return JsonResponse({'status': 'success', 'message': 'Email sent successfully!'})
         except Exception as e:
@@ -94,61 +95,36 @@ def send_email_to_user(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
 
-def send_brevo_email(to_email, subject, html_content):
-    url = "https://api.brevo.com/v3/smtp/email"
-
-    headers = {
-        "accept": "application/json",
-        "api-key": settings.BREVO_API_KEY,
-        "content-type": "application/json"
-    }
-
-    payload = {
-        "sender": {
-            "name": "SAE Audition",
-            "email": settings.DEFAULT_FROM_EMAIL
-        },
-        "to": [{"email": to_email}],
-        "subject": subject,
-        "htmlContent": html_content
-    }
-
-    response = requests.post(url, json=payload, headers=headers)
-    return response.status_code, response.text
-
-
 class SendOtpView(APIView):
     permission_classes = [AllowAny]
-
     def post(self, request):
         serializer = SendOtpSerializer(data=request.data)
-
         if serializer.is_valid():
             email = serializer.validated_data['email']
 
+            # Delete any existing OTP for the given email
             OTP.objects.filter(email=email).delete()
 
+            # Generate a new OTP
             otp = random.randint(100000, 999999)
 
-            # SAVE OTP 🔥
-            OTP.objects.create(email=email, otp=otp)
-
+            # Send OTP via email
             try:
-                status_code, response = send_brevo_email(
-                    email,
-                    "Your OTP for Admin Login",
-                    f"<p>Your OTP is <b>{otp}</b></p>"
+                send_mail(
+                    'Your OTP for Admin Login',
+                    f'Your OTP is {otp}',
+                    settings.EMAIL_HOST_USER,
+                    [email],
+                    fail_silently=False,
                 )
-
-                if status_code not in [200, 201]:
-                    return Response({"error": response}, status=500)
-                return Response({"message": "OTP sent"}, status=200)
-
+                # Save the new OTP to the database ONLY if email sent successfully
+                OTP.objects.create(otp=str(otp), email=email)
+                return Response({"message": "OTP sent successfully!"}, status=status.HTTP_200_OK)
             except Exception as e:
-                return Response({"error": str(e)}, status=500)
-
-        return Response(serializer.errors, status=400)
-
+                # Return the actual error message for debugging
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
 class VerifyOtpView(APIView):
     permission_classes = [AllowAny]
