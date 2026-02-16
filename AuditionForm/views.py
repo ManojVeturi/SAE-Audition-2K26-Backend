@@ -116,12 +116,14 @@ class SendOtpView(APIView):
                     [email],
                     fail_silently=False,
                 )
-                # Save the new OTP to the database ONLY if email sent successfully
-                OTP.objects.create(otp=str(otp), email=email)
-                return Response({"message": "OTP sent successfully!"}, status=status.HTTP_200_OK)
+
+                print("✅ EMAIL SENT SUCCESS")
+
+                return Response({"message": "OTP sent"}, status=200)
+
             except Exception as e:
-                # Return the actual error message for debugging
-                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                print("🔥🔥🔥 EMAIL ERROR:", str(e))
+                return Response({"error": str(e)}, status=500)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
