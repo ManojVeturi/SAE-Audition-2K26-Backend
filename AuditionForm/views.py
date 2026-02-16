@@ -27,6 +27,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
 from django.http import Http404
+import requests
+from django.conf import settings
 
 
 # def get_tokens_for_user(user):
@@ -87,12 +89,39 @@ def send_email_to_user(request):
             from_email = settings.DEFAULT_FROM_EMAIL  # Use key from settings
             recipient_list = [user_email]
 
-            send_mail(subject, message, from_email, recipient_list)
+            send_brevo_email(
+                user_email,
+                subject,
+                message.replace("\n", "<br>")
+            )
             
             return JsonResponse({'status': 'success', 'message': 'Email sent successfully!'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
+
+
+def send_brevo_email(to_email, subject, html_content):
+    url = "https://api.brevo.com/v3/smtp/email"
+
+    headers = {
+        "accept": "application/json",
+        "api-key": settings.BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+
+    payload = {
+        "sender": {
+            "name": "SAE Audition",
+            "email": settings.DEFAULT_FROM_EMAIL
+        },
+        "to": [{"email": to_email}],
+        "subject": subject,
+        "htmlContent": html_content
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    return response.status_code, response.text
 
 
 class SendOtpView(APIView):
@@ -112,14 +141,14 @@ class SendOtpView(APIView):
             OTP.objects.create(email=email, otp=otp)
 
             try:
-                send_mail(
-                    'Your OTP for Admin Login',
-                    f'Your OTP is {otp}',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [email],
-                    fail_silently=False,
+                status_code, response = send_brevo_email(
+                    email,
+                    "Your OTP for Admin Login",
+                    f"<p>Your OTP is <b>{otp}</b></p>"
                 )
 
+                if status_code not in [200, 201]:
+                    return Response({"error": response}, status=500)
                 return Response({"message": "OTP sent"}, status=200)
 
             except Exception as e:
