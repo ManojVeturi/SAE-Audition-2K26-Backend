@@ -113,7 +113,7 @@ class SendOtpView(APIView):
                 send_mail(
                     'Your OTP for Admin Login',
                     f'Your OTP is {otp}',
-                    settings.EMAIL_HOST_USER,
+                    settings.DEFAULT_FROM_EMAIL,
                     [email],
                     fail_silently=False,
                 )
