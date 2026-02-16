@@ -96,37 +96,45 @@ def send_email_to_user(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
 
+
 class SendOtpView(APIView):
     permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = SendOtpSerializer(data=request.data)
+
         if serializer.is_valid():
             email = serializer.validated_data['email']
 
-            # Delete any existing OTP for the given email
             OTP.objects.filter(email=email).delete()
-
-            # Generate a new OTP
             otp = random.randint(100000, 999999)
 
-            # Send OTP via email
             try:
-                resend.api_key = os.environ.get("RESEND_API_KEY")
+                print("STEP 1: starting resend")
 
-                resend.Emails.send({
+                api_key = os.environ.get("RESEND_API_KEY")
+                print("STEP 2: API KEY EXISTS:", api_key is not None)
+
+                resend.api_key = api_key
+
+                response = resend.Emails.send({
                     "from": "onboarding@resend.dev",
                     "to": [email],
                     "subject": "Your OTP for Admin Login",
                     "html": f"<h2>Your OTP is {otp}</h2>"
                 })
-                # Save the new OTP to the database ONLY if email sent successfully
+
+                print("STEP 3: resend response:", response)
+
                 OTP.objects.create(otp=str(otp), email=email)
-                return Response({"message": "OTP sent successfully!"}, status=status.HTTP_200_OK)
+
+                return Response({"message": "OTP sent successfully!"}, status=200)
+
             except Exception as e:
-                # Return the actual error message for debugging
-                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                print("🔥🔥🔥 RESEND FULL ERROR:", str(e))
+                return Response({"error": str(e)}, status=500)
+
+        return Response(serializer.errors, status=400)
             
 class VerifyOtpView(APIView):
     permission_classes = [AllowAny]
