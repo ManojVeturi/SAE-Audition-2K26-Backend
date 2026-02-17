@@ -1,32 +1,28 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.shortcuts import render,HttpResponse
 from rest_framework import status
-from .models import AuditionData
-from .serializers import AuditionDataSerializer
-from .serializers import LoginSerializer
-from .serializers import UserSerializer
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
-from django.core.mail import send_mail
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
-from .models import OTP
-from twilio.rest import Client
-from django.conf import settings
-from .serializers import SendOtpSerializer, VerifyOtpSerializer
-from django.core.mail import send_mail
-from rest_framework.response import Response
-from rest_framework import status
-import random
-from django.core.mail import send_mail
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import NotFound
-from django.http import Http404
+
+from django.shortcuts import render, HttpResponse
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from django.core.mail import send_mail
+from django.http import JsonResponse, Http404
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+from .models import AuditionData, OTP
+from .serializers import (
+    AuditionDataSerializer,
+    LoginSerializer,
+    UserSerializer,
+    SendOtpSerializer,
+    VerifyOtpSerializer
+)
+
+import json
+import random
 
 
 # def get_tokens_for_user(user):
@@ -84,10 +80,16 @@ def send_email_to_user(request):
             # Send success email to the user
             subject = "Welcome to SAE Audition - Let's Crush This Challenge! "
             message = "Congrats on moving forward to the SAE Audition! This is the college's most demanding audition, where only the best rise to the top. It's your chance to showcase your skills, creativity, and passion. \n \nPrepare to face exciting challenges that will push your limits and ignite your innovative spirit. Every task is an opportunity to shine and grow—whether it's teamwork, leadership, or technical expertise. \n \nWe know you're ready. Stay focused, bring your A-game, and make the most of every moment. \n \nLet's make this audition unforgettable. Best of luck!\n \n \n \nWarm regards, \nSAEINDIA Collegiate Club\nNIT Durgapur"
-            from_email = settings.EMAIL_HOST_USER  # Use key from settings
+            from_email = settings.DEFAULT_FROM_EMAIL # Use key from settings
             recipient_list = [user_email]
 
-            send_mail(subject, message, from_email, recipient_list)
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [user_email],
+                fail_silently=False
+            )
             
             return JsonResponse({'status': 'success', 'message': 'Email sent successfully!'})
         except Exception as e:
@@ -113,7 +115,7 @@ class SendOtpView(APIView):
                 send_mail(
                     'Your OTP for Admin Login',
                     f'Your OTP is {otp}',
-                    settings.EMAIL_HOST_USER,
+                    settings.DEFAULT_FROM_EMAIL,
                     [email],
                     fail_silently=False,
                 )
