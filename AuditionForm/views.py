@@ -20,7 +20,7 @@ from .serializers import (
     SendOtpSerializer,
     VerifyOtpSerializer
 )
-
+from .utils.email import send_email
 import json
 import random
 
@@ -83,13 +83,7 @@ def send_email_to_user(request):
             from_email = settings.DEFAULT_FROM_EMAIL # Use key from settings
             recipient_list = [user_email]
 
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [user_email],
-                fail_silently=False
-            )
+            send_email(user_email, subject, message)
             
             return JsonResponse({'status': 'success', 'message': 'Email sent successfully!'})
         except Exception as e:
@@ -112,13 +106,12 @@ class SendOtpView(APIView):
 
             # Send OTP via email
             try:
-                send_mail(
-                    'Your OTP for Admin Login',
-                    f'Your OTP is {otp}',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [email],
-                    fail_silently=False,
+                send_email(
+                    email,
+                    "Your OTP for Admin Login",
+                    f"Your OTP is {otp}"
                 )
+
                 print("OTP EMAIL SENT SUCCESSFULLY TO:", email)
 
                 OTP.objects.create(otp=str(otp), email=email)
