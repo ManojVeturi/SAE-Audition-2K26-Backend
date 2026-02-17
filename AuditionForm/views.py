@@ -11,7 +11,7 @@ from django.core.mail import send_mail
 from django.http import JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
-
+from rest_framework.exceptions import NotFound
 from .models import AuditionData, OTP
 from .serializers import (
     AuditionDataSerializer,
@@ -119,14 +119,15 @@ class SendOtpView(APIView):
                     [email],
                     fail_silently=False,
                 )
-                # Save the new OTP to the database ONLY if email sent successfully
+                print("OTP EMAIL SENT SUCCESSFULLY TO:", email)
+
                 OTP.objects.create(otp=str(otp), email=email)
                 return Response({"message": "OTP sent successfully!"}, status=status.HTTP_200_OK)
+
             except Exception as e:
-                # Return the actual error message for debugging
+                print("OTP EMAIL ERROR:", str(e))
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
             
 class VerifyOtpView(APIView):
     permission_classes = [AllowAny]

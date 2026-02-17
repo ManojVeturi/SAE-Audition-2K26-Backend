@@ -16,7 +16,7 @@ class AuditionData(models.Model):
     name = models.CharField(max_length=50)
     email = models.CharField(max_length=50)
     roll = models.CharField(max_length=10, null=True, unique=True)
-    phone = models.IntegerField(max_length=10, null=True)
+    phone = models.CharField(max_length=10, null=True)
     department = models.CharField(max_length=30, null=True)
     gender = models.CharField(max_length=30, null=True)
     year = models.CharField(max_length=30, null=True)
