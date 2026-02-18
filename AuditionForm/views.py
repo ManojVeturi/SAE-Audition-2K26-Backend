@@ -4,25 +4,25 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from django.shortcuts import render, HttpResponse
+#from django.shortcuts import render, HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from django.core.mail import send_mail
+#from django.core.mail import send_mail
 from django.http import JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from rest_framework.exceptions import NotFound
-from .models import AuditionData, OTP
+from .models import AuditionData
+#from .models import OTP
 from .serializers import (
     AuditionDataSerializer,
     LoginSerializer,
     UserSerializer,
-    SendOtpSerializer,
-    VerifyOtpSerializer
 )
+#from .serializers import SendOtpSerializer, VerifyOtpSerializer
 from .utils.email import send_email
 import json
-import random
+#import random
 
 
 # def get_tokens_for_user(user):
@@ -91,7 +91,7 @@ def send_email_to_user(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
 
-class SendOtpView(APIView):
+"""class SendOtpView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
         serializer = SendOtpSerializer(data=request.data)
@@ -146,7 +146,7 @@ class VerifyOtpView(APIView):
             except OTP.DoesNotExist:
                 return Response({"message": "No OTP found for this email."}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)"""
 
 
 class LoginUserView(APIView):

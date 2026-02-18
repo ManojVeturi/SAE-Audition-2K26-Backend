@@ -1,8 +1,8 @@
 from django.db import models
-import json
+#import json
 # from django.utils import timezone
 # from datetime import timedelta
-from django.utils.timezone import now, timedelta
+#from django.utils.timezone import now, timedelta
 
 
 class AuditionData(models.Model):
@@ -30,14 +30,14 @@ class AuditionData(models.Model):
         return self.name
 
 
-class OTP(models.Model):
+"""class OTP(models.Model):
     otp = models.CharField(max_length=6)
     email = models.EmailField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def is_expired(self):
-        """Check if OTP is expired (valid for 5 minutes)"""
+        Check if OTP is expired (valid for 5 minutes)
         return now() > self.created_at + timedelta(minutes=5)
 
     def __str__(self):
-        return self.email
+        return self.email"""
