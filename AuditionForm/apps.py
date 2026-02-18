@@ -6,4 +6,4 @@ class AuditionformConfig(AppConfig):
     name = 'AuditionForm'
 
     def ready(self):
-        from . import create_superuser
+        pass
