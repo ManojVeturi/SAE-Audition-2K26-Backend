@@ -14,7 +14,7 @@ class AuditionData(models.Model):
         ("Graphics Designing", "Graphics Designing"),
     ]
     name = models.CharField(max_length=50)
-    email = models.CharField(max_length=50)
+    email = models.EmailField(max_length=50, unique=True)
     roll = models.CharField(max_length=10, null=True, unique=True)
     phone = models.CharField(max_length=10, null=True)
     department = models.CharField(max_length=30, null=True)
