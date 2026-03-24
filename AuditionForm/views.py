@@ -40,11 +40,12 @@ class AuditionDataView(APIView):
             try:
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except:
-                    return Response(
-                        {"roll": ["This roll number already exists."]},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+            except Exception as e:
+                print("ERROR:", str(e))
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def get(self, request):
         if not request.user.is_authenticated:
